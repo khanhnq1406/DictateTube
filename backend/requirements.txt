@@ -1,3 +1,4 @@
 Flask
 werkzeug
 youtube-transcript-api
+python-dotenv
