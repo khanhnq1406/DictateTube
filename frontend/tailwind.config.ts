@@ -26,6 +26,9 @@ export default {
         "text-warning": "#ECB231",
         "text-secondary": "#B7B4C7",
       },
+      backgroundImage: {
+        "border-gradient": "linear-gradient(to right, #4F46E5, #50114D)",
+      },
     },
   },
   plugins: [],
