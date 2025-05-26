@@ -9,10 +9,7 @@ const VideoForm: React.FC = () => {
     console.log(data);
   };
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col gap-6 w-1/2"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
       <Controller
         control={control}
         name="videoUrl"

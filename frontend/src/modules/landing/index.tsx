@@ -7,7 +7,9 @@ const Landing: React.FC = () => {
         Free YouTube Listening & Typing Tool
       </p>
       <p className="text-center text-2xl font-semibold">Listen. Type. Learn.</p>
-      <VideoForm />
+      <div className="w-1/2">
+        <VideoForm />
+      </div>
     </div>
   );
 };
