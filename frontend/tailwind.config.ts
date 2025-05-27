@@ -28,6 +28,9 @@ export default {
         "shadow-secondary-l": "0px 0px 50px 5px #0E1449",
         "shadow-secondary-s": "0px 0px 30px 0px #0E1449",
       },
+      borderColor: {
+        "color-shadow-primary": "#50114D",
+      },
       backgroundImage: {
         "border-gradient": "linear-gradient(to right, #4F46E5, #50114D)",
       },

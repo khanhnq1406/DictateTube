@@ -20,7 +20,7 @@ const VideoPlayer: React.FC = () => {
   };
   return (
     <div className="flex flex-col gap-6 justify-center">
-      <div className="w-full">
+      <div className="w-full shadow-shadow-primary-s">
         <YouTube videoId="8InuLZ-2vV4" onReady={onPlayerReady} opts={opts} />
       </div>
       <div className="w-full">

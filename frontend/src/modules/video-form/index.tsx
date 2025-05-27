@@ -51,7 +51,7 @@ const VideoForm: React.FC = () => {
         </button>
         <button
           type="submit"
-          className="bg-btn text-white rounded-full px-4 py-2 font-semibold"
+          className="bg-btn hover:bg-btn-hover text-white rounded-full px-4 py-2 font-semibold"
         >
           Start Dictation
         </button>
