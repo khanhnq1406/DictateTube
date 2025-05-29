@@ -7,3 +7,13 @@ export const correct = `${resources}correct.png`;
 export const warning = `${resources}warning.png`;
 export const play = `${resources}play.png`;
 export const pause = `${resources}pause.png`;
+
+export enum AnswerState {
+  full = "full",
+  immediately = "immediately",
+}
+
+export enum VideoFormState {
+  landing = "landing",
+  dictation = "dictation",
+}

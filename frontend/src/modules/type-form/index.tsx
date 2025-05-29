@@ -1,7 +1,13 @@
-import { arrow, correct, play } from "@/const";
+"use client";
+import { AnswerState, arrow, correct, play } from "@/const";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 const TypeForm: React.FC = () => {
+  const [answerState, setAnswerState] = useState(AnswerState.immediately);
+  useEffect(() => {
+    console.log(answerState);
+  }, [answerState]);
   return (
     <div className="bg-bg-secondary w-full h-full rounded-3xl shadow-shadow-primary-l py-8 flex flex-col gap-8 px-10">
       <div className="flex flex-row gap-6">
@@ -62,12 +68,28 @@ const TypeForm: React.FC = () => {
 
       <div>
         <div className="flex flex-row gap-2">
-          <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike" />
-          <label for="vehicle1">Show answer immediately</label>
+          <input
+            type="checkbox"
+            id="immediately"
+            name="immediately"
+            value="immediately"
+            checked={answerState === AnswerState.immediately}
+            onChange={() => {
+              setAnswerState(AnswerState.immediately);
+            }}
+          />
+          <label htmlFor="immediately">Show answer immediately</label>
         </div>
         <div className="flex flex-row gap-2">
-          <input type="checkbox" id="vehicle2" name="vehicle2" value="Car" />
-          <label for="vehicle2">Show full answer</label>
+          <input
+            type="checkbox"
+            id="full"
+            name="full"
+            value="full"
+            checked={answerState === AnswerState.full}
+            onChange={() => setAnswerState(AnswerState.full)}
+          />
+          <label htmlFor="full">Show full answer</label>
         </div>
       </div>
     </div>

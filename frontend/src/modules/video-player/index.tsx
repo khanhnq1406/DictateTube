@@ -4,14 +4,19 @@ import { useWatch, useForm } from "react-hook-form";
 import { VideoDataForm } from "@/interface";
 import YouTube, { YouTubeEvent } from "react-youtube";
 import VideoForm from "../video-form";
+import { VideoFormState } from "@/const";
+import { useEffect } from "react";
 
 const VideoPlayer: React.FC = () => {
   const methods = useForm<VideoDataForm>();
   const { control } = methods;
-  const [videoUrl, transcript] = useWatch({
+  const [videoUrl] = useWatch({
     control,
-    name: ["videoUrl", "transcript"],
+    name: ["videoUrl"],
   });
+  useEffect(() => {
+    console.log(videoUrl);
+  }, [videoUrl]);
   const onPlayerReady = (event: YouTubeEvent) => {
     console.log(event.target);
   };
@@ -24,7 +29,7 @@ const VideoPlayer: React.FC = () => {
         <YouTube videoId="8InuLZ-2vV4" onReady={onPlayerReady} opts={opts} />
       </div>
       <div className="w-full">
-        <VideoForm />
+        <VideoForm formState={VideoFormState.dictation} />
       </div>
     </div>
   );
