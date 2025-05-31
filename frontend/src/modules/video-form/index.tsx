@@ -1,22 +1,25 @@
 "use client";
-import { Controller, useForm } from "react-hook-form";
-import { PageState, VideoDataForm } from "@/interface";
+import { Controller } from "react-hook-form";
 import { VideoFormState } from "@/const";
+import { useVideoForm } from "@/context/video-form";
+import { useState } from "react";
+import { parseTranscript } from "@/utils/transcript";
 
 type VideoFormProps = {
   formState: VideoFormState;
   setPage?: (page: VideoFormState) => void;
 };
+
 const VideoForm: React.FC<VideoFormProps> = (props) => {
   const { formState, setPage } = props;
-  const methods = useForm<VideoDataForm>();
-  const { control, handleSubmit } = methods;
-  const pageMethods = useForm<PageState>();
-  const { pageControl } = pageMethods;
+  const { videoMethods } = useVideoForm();
+  const { control, handleSubmit } = videoMethods;
+  const [transcript, setTranscript] = useState<string>("");
 
-  const onSubmit = (data: VideoDataForm) => {
-    methods.setValue("videoUrl", data.videoUrl);
-    methods.setValue("transcript", data.transcript);
+  const onSubmit = () => {
+    const parsedTranscript = parseTranscript(transcript);
+    console.log(parsedTranscript);
+    videoMethods.setValue("transcript", transcript);
     if (formState === VideoFormState.landing && setPage) {
       setPage(VideoFormState.dictation);
     }
@@ -42,14 +45,16 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
       <Controller
         control={control}
         name="transcript"
-        render={({ field }) => (
+        render={() => (
           <div className="relative bg-bg-secondary h-32 rounded-2xl p-[2px]">
             <div className="absolute inset-0 bg-border-gradient rounded-2xl"></div>
             <textarea
               required
-              {...field}
               placeholder="Enter YouTube video transcript"
               className="relative bg-bg-secondary h-full w-full rounded-2xl p-4 resize-none focus:outline-none"
+              onChange={(e) => {
+                setTranscript(e.target.value);
+              }}
             />
           </div>
         )}
