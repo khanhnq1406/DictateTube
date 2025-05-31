@@ -21,6 +21,7 @@ export default {
         "text-success": "#45A34C",
         "text-warning": "#ECB231",
         "text-secondary": "#B7B4C7",
+        "text-success-hover": "#3D8B40",
       },
       boxShadow: {
         "shadow-primary-l": "0px 0px 50px 5px #50114D",

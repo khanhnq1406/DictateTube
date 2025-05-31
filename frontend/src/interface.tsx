@@ -1,8 +1,12 @@
 import { VideoFormState } from "./const";
 
+export interface Transcript {
+  time: string;
+  transcript: string;
+}
 export interface VideoDataForm {
   videoUrl: string;
-  transcript: string;
+  transcript: Transcript[];
 }
 
 export interface PageState {

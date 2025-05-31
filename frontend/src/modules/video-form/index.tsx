@@ -18,8 +18,7 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
 
   const onSubmit = () => {
     const parsedTranscript = parseTranscript(transcript);
-    console.log(parsedTranscript);
-    videoMethods.setValue("transcript", transcript);
+    videoMethods.setValue("transcript", parsedTranscript);
     if (formState === VideoFormState.landing && setPage) {
       setPage(VideoFormState.dictation);
     }
@@ -55,6 +54,7 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
               onChange={(e) => {
                 setTranscript(e.target.value);
               }}
+              value={transcript}
             />
           </div>
         )}
