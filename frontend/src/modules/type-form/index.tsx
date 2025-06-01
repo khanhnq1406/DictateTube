@@ -1,5 +1,5 @@
 "use client";
-import { AnswerState, arrow, correct, play, warning } from "@/const";
+import { AnswerState, arrow, correct, pause, play, warning } from "@/const";
 import { useVideoForm } from "@/context/video-form";
 import {
   Tooltip,
@@ -17,16 +17,14 @@ const TypeForm: React.FC = () => {
     AnswerState.immediately
   );
   const { videoMethods } = useVideoForm();
-  const { control } = videoMethods;
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const { control, setValue } = videoMethods;
   const [isCorrect, setIsCorrect] = useState<boolean | undefined>(undefined);
   const [typeText, setTypeText] = useState("");
-  const [isPlaying, setIsPlaying] = useState(false);
   const [answer, setAnswer] = useState("");
 
-  const [transcript] = useWatch({
+  const [transcript, isPlaying, currentIndex] = useWatch({
     control,
-    name: ["transcript"],
+    name: ["transcript", "isPlaying", "currentIndex"],
   });
 
   useEffect(() => {
@@ -43,14 +41,16 @@ const TypeForm: React.FC = () => {
   }, [isPlaying]);
 
   const resetState = () => {
-    setCurrentIndex((prev) => prev + 1);
+    setValue("currentIndex", currentIndex + 1);
+    setValue("isPlaying", true);
     setTypeText("");
     setIsCorrect(undefined);
     setAnswer("");
   };
   const handleNavigation = (direction: "prev" | "next") => {
     if (direction === "prev" && currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
+      setValue("currentIndex", currentIndex - 1);
+      setValue("isPlaying", true);
       setTypeText("");
       setIsCorrect(undefined);
       setAnswer("");
@@ -61,7 +61,7 @@ const TypeForm: React.FC = () => {
 
   const handlePlay = () => {
     console.log("clicked handled");
-    setIsPlaying(!isPlaying);
+    setValue("isPlaying", !isPlaying);
   };
 
   const onCheckAnswer = (event: MouseEvent<HTMLButtonElement>) => {
@@ -84,13 +84,18 @@ const TypeForm: React.FC = () => {
   };
 
   const handleSkip = () => {
+    setIsCorrect(true);
+    setAnswer(getDisplayText(true));
+  };
+
+  const handleNext = () => {
     if (currentIndex < transcript.length - 1) {
       resetState();
     }
   };
 
-  const getDisplayText = () => {
-    if (answerState === AnswerState.immediately) {
+  const getDisplayText = (isFull?: boolean) => {
+    if (answerState === AnswerState.immediately && !isFull) {
       const typedWords = typeText.trim().toLowerCase().split(/\s+/);
       const correctWords = transcript[currentIndex].transcript
         .toLowerCase()
@@ -116,12 +121,15 @@ const TypeForm: React.FC = () => {
           <Tooltip>
             <TooltipTrigger asChild>
               <button
-                className={`border border-btn hover:bg-bg-primary p-2 rounded-md ${
-                  isPlaying ? "bg-bg-primary" : ""
+                className={`border border-btn hover:bg-bg-primary p-2 rounded-md 
                 }`}
                 onClick={handlePlay}
               >
-                <Image src={play} alt="play-icon" width={20} height={20} />
+                {isPlaying ? (
+                  <Image src={pause} alt="pause-icon" width={20} height={20} />
+                ) : (
+                  <Image src={play} alt="play-icon" width={20} height={20} />
+                )}
               </button>
             </TooltipTrigger>
             <TooltipContent
@@ -197,7 +205,10 @@ const TypeForm: React.FC = () => {
         </div>
         <div className="flex flex-row gap-4">
           {isCorrect === true ? (
-            <button className="bg-text-success hover:bg-text-success-hover text-white rounded-full px-4 py-3 font-semibold w-40">
+            <button
+              className="bg-text-success hover:bg-text-success-hover text-white rounded-full px-4 py-3 font-semibold w-40"
+              onClick={handleNext}
+            >
               Next
             </button>
           ) : (

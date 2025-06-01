@@ -1,5 +1,5 @@
 export interface TranscriptItem {
-  time: string;
+  time: number;
   transcript: string;
 }
 
@@ -21,7 +21,7 @@ export const parseTranscript = (text: string): TranscriptItem[] => {
 
       if (match) {
         return {
-          time: match[1],
+          time: timeToSeconds(match[1]),
           transcript: match[2].trim(),
         };
       }
@@ -29,4 +29,9 @@ export const parseTranscript = (text: string): TranscriptItem[] => {
       return null;
     })
     .filter((item): item is TranscriptItem => item !== null);
+};
+
+export const timeToSeconds = (timeString: string): number => {
+  const [hours, minutes, seconds] = timeString.split(":").map(Number);
+  return Math.floor(hours * 3600 + minutes * 60 + seconds);
 };

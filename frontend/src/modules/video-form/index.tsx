@@ -19,6 +19,8 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
   const onSubmit = () => {
     const parsedTranscript = parseTranscript(transcript);
     videoMethods.setValue("transcript", parsedTranscript);
+    videoMethods.setValue("isPlaying", true);
+    videoMethods.setValue("currentIndex", 0);
     if (formState === VideoFormState.landing && setPage) {
       setPage(VideoFormState.dictation);
     }
