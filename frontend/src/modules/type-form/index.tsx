@@ -1,5 +1,13 @@
 "use client";
-import { AnswerState, arrow, correct, pause, play, warning } from "@/const";
+import {
+  AnswerState,
+  arrow,
+  correct,
+  pause,
+  play,
+  warning,
+  fieldKey,
+} from "@/const";
 import { useVideoForm } from "@/context/video-form";
 import {
   Tooltip,
@@ -11,6 +19,7 @@ import {
 import Image from "next/image";
 import { MouseEvent, useEffect, useState } from "react";
 import { useWatch } from "react-hook-form";
+import { VideoDataForm, Transcript } from "@/interface";
 
 const TypeForm: React.FC = () => {
   const [answerState, setAnswerState] = useState<AnswerState>(
@@ -22,35 +31,49 @@ const TypeForm: React.FC = () => {
   const [typeText, setTypeText] = useState("");
   const [answer, setAnswer] = useState("");
 
-  const [transcript, isPlaying, currentIndex] = useWatch({
+  const [transcript, isPlaying, currentIndex] = useWatch<VideoDataForm>({
     control,
-    name: ["transcript", "isPlaying", "currentIndex"],
-  });
+    name: [fieldKey.transcript, fieldKey.isPlaying, fieldKey.currentIndex],
+  }) as [Transcript[], boolean, number];
 
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        handlePlay();
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          handlePlay();
+        }, 300);
       }
     };
 
     window.addEventListener("keydown", handleKeyPress);
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
+      clearTimeout(timeoutId);
     };
   }, [isPlaying]);
 
   const resetState = () => {
-    setValue("currentIndex", currentIndex + 1);
-    setValue("isPlaying", true);
+    setValue(fieldKey.currentIndex, currentIndex + 1);
+    window.localStorage.setItem(
+      fieldKey.currentIndex,
+      String(currentIndex + 1)
+    );
+    setValue(fieldKey.isPlaying, true);
     setTypeText("");
     setIsCorrect(undefined);
     setAnswer("");
   };
   const handleNavigation = (direction: "prev" | "next") => {
     if (direction === "prev" && currentIndex > 0) {
-      setValue("currentIndex", currentIndex - 1);
-      setValue("isPlaying", true);
+      setValue(fieldKey.currentIndex, currentIndex - 1);
+      window.localStorage.setItem(
+        fieldKey.currentIndex,
+        String(currentIndex - 1)
+      );
+
+      setValue(fieldKey.isPlaying, true);
       setTypeText("");
       setIsCorrect(undefined);
       setAnswer("");
@@ -60,8 +83,7 @@ const TypeForm: React.FC = () => {
   };
 
   const handlePlay = () => {
-    console.log("clicked handled");
-    setValue("isPlaying", !isPlaying);
+    setValue(fieldKey.isPlaying, !isPlaying);
   };
 
   const onCheckAnswer = (event: MouseEvent<HTMLButtonElement>) => {
@@ -102,7 +124,7 @@ const TypeForm: React.FC = () => {
         .split(/\s+/);
 
       return correctWords
-        .map((word, index) => {
+        .map((word: string, index: number) => {
           if (index >= typedWords.length) {
             return "*".repeat(word.length);
           }

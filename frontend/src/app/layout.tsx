@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { logo } from "@/const";
+import { VideoFormProvider } from "@/context/video-form";
 
 const jarkartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
@@ -24,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${jarkartaSans.variable} antialiased bg-bg-primary`}>
-        {children}
+        <VideoFormProvider>{children}</VideoFormProvider>
       </body>
     </html>
   );

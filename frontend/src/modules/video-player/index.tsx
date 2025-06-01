@@ -2,10 +2,11 @@
 import { useWatch } from "react-hook-form";
 import YouTube, { YouTubeEvent, YouTubePlayer } from "react-youtube";
 import VideoForm from "../video-form";
-import { VideoFormState } from "@/const";
+import { VideoFormState, fieldKey } from "@/const";
 import { useVideoForm } from "@/context/video-form";
 import { useEffect, useState } from "react";
 import { extractVideoId } from "@/utils/youtube";
+import { VideoDataForm, Transcript } from "@/interface";
 
 const VideoPlayer: React.FC = () => {
   const { videoMethods } = useVideoForm();
@@ -13,15 +14,20 @@ const VideoPlayer: React.FC = () => {
   const [videoId, setVideoId] = useState<string | null>(null);
   const [player, setPlayer] = useState<YouTubePlayer | null>(null);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
-  const [videoUrl, isPlaying, transcript, currentIndex] = useWatch({
-    control,
-    name: ["videoUrl", "isPlaying", "transcript", "currentIndex"],
-  });
+  const [videoUrl, isPlaying, transcript, currentIndex] =
+    useWatch<VideoDataForm>({
+      control,
+      name: [
+        fieldKey.videoUrl,
+        fieldKey.isPlaying,
+        fieldKey.transcript,
+        fieldKey.currentIndex,
+      ],
+    }) as [string, boolean, Transcript[], number];
 
   useEffect(() => {
     if (videoUrl) {
       const id = extractVideoId(videoUrl);
-      console.log(id);
       setVideoId(id);
     }
   }, [videoUrl]);
@@ -37,7 +43,6 @@ const VideoPlayer: React.FC = () => {
     ) {
       const currentTime = transcript[currentIndex].time;
       const nextTime = transcript[currentIndex + 1]?.time;
-      console.log(currentTime, nextTime);
       const handlePlayback = () => {
         try {
           if (isPlaying) {

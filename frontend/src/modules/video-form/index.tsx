@@ -1,8 +1,8 @@
 "use client";
-import { Controller } from "react-hook-form";
-import { VideoFormState } from "@/const";
+import { Controller, useWatch } from "react-hook-form";
+import { VideoFormState, fieldKey } from "@/const";
 import { useVideoForm } from "@/context/video-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { parseTranscript } from "@/utils/transcript";
 
 type VideoFormProps = {
@@ -15,21 +15,48 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
   const { videoMethods } = useVideoForm();
   const { control, handleSubmit } = videoMethods;
   const [transcript, setTranscript] = useState<string>("");
+  const [videoUrl] = useWatch({
+    control,
+    name: [fieldKey.videoUrl],
+  });
+  useEffect(() => {
+    const storagedTranscript = window.localStorage.getItem(fieldKey.transcript);
+    if (storagedTranscript) {
+      setTranscript(storagedTranscript);
+    }
+    const storagedCurrentIndex = window.localStorage.getItem(
+      fieldKey.currentIndex
+    );
+    if (storagedCurrentIndex) {
+      videoMethods.setValue(
+        fieldKey.currentIndex,
+        Number(storagedCurrentIndex)
+      );
+    }
+    const storagedVideoUrl = window.localStorage.getItem(fieldKey.videoUrl);
+    if (storagedVideoUrl) {
+      videoMethods.setValue(fieldKey.videoUrl, storagedVideoUrl);
+    }
+  }, []);
 
   const onSubmit = () => {
     const parsedTranscript = parseTranscript(transcript);
-    videoMethods.setValue("transcript", parsedTranscript);
-    videoMethods.setValue("isPlaying", true);
-    videoMethods.setValue("currentIndex", 0);
+    videoMethods.setValue(fieldKey.transcript, parsedTranscript);
+    videoMethods.setValue(fieldKey.isPlaying, true);
+    videoMethods.setValue(fieldKey.currentIndex, 0);
+    window.localStorage.setItem(fieldKey.transcript, transcript);
+    window.localStorage.setItem(fieldKey.currentIndex, "0");
+    window.localStorage.setItem(fieldKey.videoUrl, videoUrl);
     if (formState === VideoFormState.landing && setPage) {
       setPage(VideoFormState.dictation);
     }
   };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
       <Controller
         control={control}
-        name="videoUrl"
+        name={fieldKey.videoUrl}
         render={({ field }) => (
           <div className="relative bg-bg-secondary h-16 rounded-full p-[2px]">
             <div className="absolute inset-0 bg-border-gradient rounded-full"></div>

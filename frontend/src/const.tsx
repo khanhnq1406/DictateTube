@@ -17,3 +17,10 @@ export enum VideoFormState {
   landing = "landing",
   dictation = "dictation",
 }
+
+export enum fieldKey {
+  currentIndex = "currentIndex",
+  transcript = "transcript",
+  videoUrl = "videoUrl",
+  isPlaying = "isPlaying",
+}
