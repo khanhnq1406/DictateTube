@@ -2,8 +2,9 @@
 import { Controller, useWatch } from "react-hook-form";
 import { VideoFormState, fieldKey } from "@/const";
 import { useVideoForm } from "@/context/video-form";
-import { useEffect, useState } from "react";
-import { parseTranscript } from "@/utils/transcript";
+import { useEffect } from "react";
+import { parseApiResponse } from "@/utils/transcript";
+import { getTranscriptApi } from "@/utils/getTranscriptApi";
 
 type VideoFormProps = {
   formState: VideoFormState;
@@ -13,8 +14,8 @@ type VideoFormProps = {
 const VideoForm: React.FC<VideoFormProps> = (props) => {
   const { formState, setPage } = props;
   const { videoMethods } = useVideoForm();
-  const { control, handleSubmit } = videoMethods;
-  const [transcript, setTranscript] = useState<string>("");
+  const { control, handleSubmit, getValues } = videoMethods;
+  // const [transcript, setTranscript] = useState<string>("");
   const [videoUrl] = useWatch({
     control,
     name: [fieldKey.videoUrl],
@@ -22,7 +23,12 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
   useEffect(() => {
     const storagedTranscript = window.localStorage.getItem(fieldKey.transcript);
     if (storagedTranscript) {
-      setTranscript(storagedTranscript);
+      try {
+        const parsedStoredTranscript = JSON.parse(storagedTranscript);
+        videoMethods.setValue(fieldKey.transcript, parsedStoredTranscript);
+      } catch (error) {
+        console.error("Error parsing stored transcript:", error);
+      }
     }
     const storagedCurrentIndex = window.localStorage.getItem(
       fieldKey.currentIndex
@@ -39,12 +45,16 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
     }
   }, []);
 
-  const onSubmit = () => {
-    const parsedTranscript = parseTranscript(transcript);
+  const onSubmit = async () => {
+    const res = await getTranscriptApi(getValues().videoUrl);
+    const parsedTranscript = parseApiResponse(res);
     videoMethods.setValue(fieldKey.transcript, parsedTranscript);
     videoMethods.setValue(fieldKey.isPlaying, true);
     videoMethods.setValue(fieldKey.currentIndex, 0);
-    window.localStorage.setItem(fieldKey.transcript, transcript);
+    window.localStorage.setItem(
+      fieldKey.transcript,
+      JSON.stringify(parsedTranscript)
+    );
     window.localStorage.setItem(fieldKey.currentIndex, "0");
     window.localStorage.setItem(fieldKey.videoUrl, videoUrl);
     if (formState === VideoFormState.landing && setPage) {
@@ -70,7 +80,7 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
           </div>
         )}
       />
-      <Controller
+      {/* <Controller
         control={control}
         name="transcript"
         render={() => (
@@ -87,7 +97,7 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
             />
           </div>
         )}
-      />
+      /> */}
       <div className="flex flex-row place-content-between items-center">
         <button
           className="underline bg-transparent text-text-secondary"
