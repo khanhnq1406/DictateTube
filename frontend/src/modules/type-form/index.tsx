@@ -17,7 +17,7 @@ import {
   TooltipTrigger,
 } from "@radix-ui/react-tooltip";
 import Image from "next/image";
-import { MouseEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useWatch } from "react-hook-form";
 import { VideoDataForm, Transcript } from "@/interface";
 
@@ -86,17 +86,19 @@ const TypeForm: React.FC = () => {
     setValue(fieldKey.isPlaying, !isPlaying);
   };
 
-  const onCheckAnswer = (event: MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
+  const handleCheckAnswer = () => {
     setAnswer(getDisplayText());
     const typedWords = typeText.trim().toLowerCase().split(/\s+/);
     const correctWords = transcript[currentIndex].transcript
       .toLowerCase()
       .split(/\s+/);
 
+    // Helper function to clean words by removing punctuation
+    const cleanWord = (word: string) => word.replace(/['",.]/g, "");
+
     let isAllCorrect = true;
     for (let i = 0; i < Math.max(typedWords.length, correctWords.length); i++) {
-      if (typedWords[i] !== correctWords[i]) {
+      if (cleanWord(typedWords[i] || "") !== cleanWord(correctWords[i] || "")) {
         isAllCorrect = false;
         break;
       }
@@ -123,12 +125,17 @@ const TypeForm: React.FC = () => {
         .toLowerCase()
         .split(/\s+/);
 
+      // Helper function to clean words by removing punctuation
+      const cleanWord = (word: string) => word.replace(/['",.]/g, "");
+
       return correctWords
         .map((word: string, index: number) => {
           if (index >= typedWords.length) {
             return "*".repeat(word.length);
           }
-          return typedWords[index] === word ? word : "*".repeat(word.length);
+          return cleanWord(typedWords[index]) === cleanWord(word)
+            ? word
+            : "*".repeat(word.length);
         })
         .join(" ");
     } else {
@@ -194,7 +201,20 @@ const TypeForm: React.FC = () => {
           placeholder="Type what you hear..."
           className="bg-bg-primary border-2 border-btn rounded-lg p-4 resize-none h-full w-full"
           value={typeText}
-          onChange={(e) => setTypeText(e.target.value)}
+          onChange={(e) => {
+            setTypeText(e.target.value);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+            }
+          }}
+          onKeyUp={(e) => {
+            if (e.key === "Enter") {
+              handleCheckAnswer();
+              return;
+            }
+          }}
         />
       </div>
 
@@ -237,7 +257,7 @@ const TypeForm: React.FC = () => {
             <>
               <button
                 className="bg-btn hover:bg-btn-hover text-white rounded-full px-4 py-3 font-semibold w-40"
-                onClick={onCheckAnswer}
+                onClick={handleCheckAnswer}
               >
                 Check
               </button>

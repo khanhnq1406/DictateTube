@@ -1,23 +1,26 @@
 async function getTranscriptApi(videoUrl: string) {
   if (videoUrl) {
-    const id = videoUrl.split("v=")[1].substring(0, 11);
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_RAPID_URL}/subtitles?id=${id}&format=json3`,
-      {
-        headers: {
-          "x-rapidapi-host": process.env.NEXT_PUBLIC_RAPID_HOST ?? "",
-          "x-rapidapi-key": process.env.NEXT_PUBLIC_RAPID_KEY ?? "",
-        },
+    try {
+      const res = await fetch(
+        `/api/transcript?url=${encodeURIComponent(videoUrl)}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to fetch transcript");
       }
-    );
-    const textRes = await res.text();
-    const parsedData = JSON.parse(textRes);
-    const transcriptUrl = parsedData.subtitles[0]?.url;
-    if (transcriptUrl) {
-      const transcriptRes = await fetch(transcriptUrl);
-      return await transcriptRes.json();
+
+      return await res.json();
+    } catch (error) {
+      console.error("Error fetching transcript:", error);
+      throw error;
     }
-    return undefined;
   }
   return undefined;
 }
