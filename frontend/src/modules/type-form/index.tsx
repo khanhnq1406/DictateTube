@@ -126,7 +126,7 @@ const TypeForm: React.FC = () => {
         .split(/\s+/);
 
       // Helper function to clean words by removing punctuation
-      const cleanWord = (word: string) => word.replace(/['",.]/g, "");
+      const cleanWord = (word: string) => word.replace(/['",.’]/g, "");
 
       return correctWords
         .map((word: string, index: number) => {
