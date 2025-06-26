@@ -89,3 +89,5 @@ export const parseApiResponse = (response: ApiResponse): Transcript[] => {
     })
     .filter((item) => item.transcript.length > 0);
 };
+
+export const cleanWord = (word: string) => word.replace(/['"‘’“”,.?]/g, "");

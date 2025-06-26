@@ -20,6 +20,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useWatch } from "react-hook-form";
 import { VideoDataForm, Transcript } from "@/interface";
+import { cleanWord } from "@/utils/transcript";
 
 const TypeForm: React.FC = () => {
   const [answerState, setAnswerState] = useState<AnswerState>(
@@ -93,9 +94,6 @@ const TypeForm: React.FC = () => {
       .toLowerCase()
       .split(/\s+/);
 
-    // Helper function to clean words by removing punctuation
-    const cleanWord = (word: string) => word.replace(/['",.]/g, "");
-
     let isAllCorrect = true;
     for (let i = 0; i < Math.max(typedWords.length, correctWords.length); i++) {
       if (cleanWord(typedWords[i] || "") !== cleanWord(correctWords[i] || "")) {
@@ -124,9 +122,6 @@ const TypeForm: React.FC = () => {
       const correctWords = transcript[currentIndex].transcript
         .toLowerCase()
         .split(/\s+/);
-
-      // Helper function to clean words by removing punctuation
-      const cleanWord = (word: string) => word.replace(/['",.’]/g, "");
 
       return correctWords
         .map((word: string, index: number) => {
