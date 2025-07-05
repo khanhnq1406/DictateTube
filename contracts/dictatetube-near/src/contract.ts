@@ -1,23 +1,48 @@
 // Find all our documentation at https://docs.near.org
-import { NearBindgen, near, call, view } from 'near-sdk-js';
+import { NearBindgen, near, call, view, initialize } from "near-sdk-js";
 
+type DataType = {
+  id: string;
+  username: string;
+  totalPoint: number;
+};
 @NearBindgen({})
 class HelloNear {
-
   static schema = {
-    greeting: 'string'
+    data: {
+      id: "string",
+      username: "string",
+      totalPoint: 0,
+    },
   };
 
-  greeting: string = 'Hello';
+  data: [DataType] = [
+    {
+      id: "0",
+      username: "Initialize user",
+      totalPoint: 0,
+    },
+  ];
 
-  @view({}) // This method is read-only and can be called for free
-  get_greeting(): string {
-    return this.greeting;
+  @view({})
+  get_score(): [DataType] {
+    return this.data;
   }
 
-  @call({}) // This method changes the state, for which it cost gas
-  set_greeting({ greeting }: { greeting: string }): void {
-    near.log(`Saving greeting ${greeting}`);
-    this.greeting = greeting;
+  @view({})
+  get_score_by_id(id: string): DataType {
+    const data = this.data.find((data) => data.id === id);
+    return data;
+  }
+
+  @call({})
+  set_score({ id, username, totalPoint }: DataType): void {
+    near.log(`Saving user ${username} with totalPoint ${totalPoint}`);
+    const index = this.data.findIndex((data) => data.id === id);
+    if (index !== -1) {
+      this.data[index].totalPoint = totalPoint;
+    } else {
+      this.data.push({ id: id, username: username, totalPoint: totalPoint });
+    }
   }
 }

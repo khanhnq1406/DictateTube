@@ -23,4 +23,6 @@ export enum fieldKey {
   transcript = "transcript",
   videoUrl = "videoUrl",
   isPlaying = "isPlaying",
+  id = "id",
+  username = "username",
 }

@@ -16,8 +16,8 @@ export default function DictationSubmit() {
           "Content-Type": "application/json",
         },
       });
-      const json = await result.json();
-      setScore(json);
+      const text = await result.text();
+      setScore(text);
     } catch (error) {
       console.error("❌ Error submitting:", error);
     } finally {

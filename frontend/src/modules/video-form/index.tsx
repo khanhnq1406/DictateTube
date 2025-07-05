@@ -5,6 +5,7 @@ import { useVideoForm } from "@/context/video-form";
 import { useEffect } from "react";
 import { parseApiResponse } from "@/utils/transcript";
 import { getTranscriptApi } from "@/utils/getTranscriptApi";
+import { v4 as uuidv4 } from "uuid";
 
 type VideoFormProps = {
   formState: VideoFormState;
@@ -57,6 +58,27 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
     );
     window.localStorage.setItem(fieldKey.currentIndex, "0");
     window.localStorage.setItem(fieldKey.videoUrl, videoUrl);
+
+    let id = window.localStorage.getItem(fieldKey.id);
+    if (!id) {
+      id = uuidv4();
+      window.localStorage.setItem(fieldKey.id, id);
+      // try {
+      //   fetch(`/api/contract/`, {
+      //     method: "POST",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //     body: JSON.stringify({
+      //       id: id,
+      //       username: id,
+      //       totalPoint: "0",
+      //     }),
+      //   });
+      // } catch (error) {
+      //   console.log(error);
+      // }
+    }
     if (formState === VideoFormState.landing && setPage) {
       setPage(VideoFormState.dictation);
     }
