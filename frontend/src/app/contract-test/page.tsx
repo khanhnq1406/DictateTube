@@ -1,5 +1,5 @@
-import DictationSubmit from "@/modules/contract";
+// import DictationSubmit from "@/modules/contract";
 
 export default function ContractTest() {
-  return <DictationSubmit />;
+  // return <DictationSubmit />;
 }

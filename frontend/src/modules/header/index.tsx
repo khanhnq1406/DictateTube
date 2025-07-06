@@ -1,6 +1,6 @@
 import { logo } from "@/const";
 import Image from "next/image";
-import { Level } from "../level";
+// import { Level } from "../level";
 
 const Header: React.FC = () => {
   return (
@@ -12,7 +12,7 @@ const Header: React.FC = () => {
           <div className="text-sm">Practice Dictation with YouTube</div>
         </div>
       </div>
-      <Level />
+      {/* <Level /> */}
     </div>
   );
 };
