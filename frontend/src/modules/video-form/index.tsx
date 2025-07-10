@@ -103,26 +103,26 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
         )}
       />
       {/* <Controller
-        control={control}
-        name="transcript"
-        render={() => (
-          <div className="relative bg-bg-secondary h-32 rounded-2xl p-[2px]">
-            <div className="absolute inset-0 bg-border-gradient rounded-2xl"></div>
-            <textarea
-              required
-              placeholder="Enter YouTube video transcript"
-              className="relative bg-bg-secondary h-full w-full rounded-2xl p-4 resize-none focus:outline-none"
-              onChange={(e) => {
-                setTranscript(e.target.value);
-              }}
-              value={transcript}
-            />
-          </div>
-        )}
-      /> */}
-      <div className="flex flex-row place-content-between items-center">
+          control={control}
+          name="transcript"
+          render={() => (
+            <div className="relative bg-bg-secondary h-32 rounded-2xl p-[2px]">
+              <div className="absolute inset-0 bg-border-gradient rounded-2xl"></div>
+              <textarea
+                required
+                placeholder="Enter YouTube video transcript"
+                className="relative bg-bg-secondary h-full w-full rounded-2xl p-4 resize-none focus:outline-none"
+                onChange={(e) => {
+                  setTranscript(e.target.value);
+                }}
+                value={transcript}
+              />
+            </div>
+          )}
+        /> */}
+      <div className="flex flex-row place-content-between items-center mobile:justify-center">
         <button
-          className="underline bg-transparent text-text-secondary"
+          className="underline bg-transparent text-text-secondary mobile:hidden"
           type="button"
           onClick={() => {
             // window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "_blank");

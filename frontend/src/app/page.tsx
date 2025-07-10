@@ -38,12 +38,15 @@ export default function Home() {
 
   return (
     <div
-      className={`grid items-center justify-items-center min-h-screen p-8 gap-16 sm:p-8 font-[family-name:var(--font-plus-jakarta-sans)]`}
+      className={
+        "flex flex-col items-center justify-items-center place-content-between min-h-screen p-8 gap-16 sm:p-8 font-[family-name:var(--font-plus-jakarta-sans)] mobile:max-w-[100vw] mobile:flex mobile:flex-col mobile:justify-center mobile:p-[2vw] mobile:py-[5vw] mobile:gap-[5vw]"
+      }
       style={
         page === VideoFormState.landing
           ? {
               backgroundImage: `url(${glow})`,
               backgroundSize: "cover",
+              justifyContent: "space-between",
             }
           : {}
       }

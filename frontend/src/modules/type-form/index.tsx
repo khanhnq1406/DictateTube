@@ -139,7 +139,7 @@ const TypeForm: React.FC = () => {
   };
 
   return (
-    <div className="bg-bg-secondary w-full h-full rounded-3xl shadow-shadow-primary-l py-8 flex flex-col gap-8 px-10">
+    <div className="bg-bg-secondary w-full h-full rounded-3xl shadow-shadow-primary-l py-8 flex flex-col gap-8 px-10 mobile:justify-center mobile:items-center mobile:p-[5vw] mobile:gap-[5vw]">
       <div className="flex flex-row gap-6">
         <TooltipProvider>
           <Tooltip>
@@ -191,7 +191,7 @@ const TypeForm: React.FC = () => {
         </div>
       </div>
 
-      <div className="h-1/2">
+      <div className="h-1/2 mobile:h-fit mobile:w-full">
         <textarea
           placeholder="Type what you hear..."
           className="bg-bg-primary border-2 border-btn rounded-lg p-4 resize-none h-full w-full"
@@ -213,7 +213,7 @@ const TypeForm: React.FC = () => {
         />
       </div>
 
-      <div className="flex flex-row items-center place-content-between">
+      <div className="flex flex-row items-center place-content-between mobile:flex-col mobile:gap-[5vw]">
         <div className="flex flex-row gap-3 items-center">
           {isCorrect === true && (
             <>
@@ -240,7 +240,7 @@ const TypeForm: React.FC = () => {
             </>
           )}
         </div>
-        <div className="flex flex-row gap-4">
+        <div className="flex flex-row gap-4 mobile:flex-col">
           {isCorrect === true ? (
             <button
               className="bg-text-success hover:bg-text-success-hover text-white rounded-full px-4 py-3 font-semibold w-40"
@@ -267,7 +267,7 @@ const TypeForm: React.FC = () => {
         </div>
       </div>
 
-      <div className="min-h-6">
+      <div className="min-h-6 mobile:text-center">
         <p>{answer}</p>
       </div>
 
