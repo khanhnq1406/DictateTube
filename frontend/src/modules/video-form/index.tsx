@@ -1,8 +1,8 @@
 "use client";
-import { Controller, useWatch } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import { VideoFormState, fieldKey } from "@/const";
 import { useVideoForm } from "@/context/video-form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { parseApiResponse } from "@/utils/transcript";
 import { getTranscriptApi } from "@/utils/getTranscriptApi";
 import { v4 as uuidv4 } from "uuid";
@@ -15,12 +15,10 @@ type VideoFormProps = {
 const VideoForm: React.FC<VideoFormProps> = (props) => {
   const { formState, setPage } = props;
   const { videoMethods } = useVideoForm();
-  const { control, handleSubmit, getValues } = videoMethods;
+  const { control, handleSubmit } = videoMethods;
   // const [transcript, setTranscript] = useState<string>("");
-  const [videoUrl] = useWatch({
-    control,
-    name: [fieldKey.videoUrl],
-  });
+  const [localVideoUrl, setLocalVideoUrl] = useState("");
+
   useEffect(() => {
     const storagedTranscript = window.localStorage.getItem(fieldKey.transcript);
     if (storagedTranscript) {
@@ -43,12 +41,14 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
     const storagedVideoUrl = window.localStorage.getItem(fieldKey.videoUrl);
     if (storagedVideoUrl) {
       videoMethods.setValue(fieldKey.videoUrl, storagedVideoUrl);
+      setLocalVideoUrl(storagedVideoUrl);
     }
   }, []);
 
   const onSubmit = async () => {
-    const res = await getTranscriptApi(getValues().videoUrl);
+    const res = await getTranscriptApi(localVideoUrl);
     const parsedTranscript = parseApiResponse(res);
+    videoMethods.setValue(fieldKey.videoUrl, localVideoUrl);
     videoMethods.setValue(fieldKey.transcript, parsedTranscript);
     videoMethods.setValue(fieldKey.isPlaying, true);
     videoMethods.setValue(fieldKey.currentIndex, 0);
@@ -57,7 +57,7 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
       JSON.stringify(parsedTranscript)
     );
     window.localStorage.setItem(fieldKey.currentIndex, "0");
-    window.localStorage.setItem(fieldKey.videoUrl, videoUrl);
+    window.localStorage.setItem(fieldKey.videoUrl, localVideoUrl);
 
     let id = window.localStorage.getItem(fieldKey.id);
     if (!id) {
@@ -98,6 +98,8 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
               {...field}
               placeholder="Enter YouTube video URL"
               className="relative bg-bg-secondary h-full w-full rounded-full px-4 focus:outline-none"
+              onChange={(event) => setLocalVideoUrl(event.target.value)}
+              value={localVideoUrl}
             />
           </div>
         )}
