@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { parseApiResponse } from "@/utils/transcript";
 import { getTranscriptApi } from "@/utils/getTranscriptApi";
 import { v4 as uuidv4 } from "uuid";
+import Image from "next/image";
 
 type VideoFormProps = {
   formState: VideoFormState;
@@ -18,6 +19,7 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
   const { control, handleSubmit } = videoMethods;
   // const [transcript, setTranscript] = useState<string>("");
   const [localVideoUrl, setLocalVideoUrl] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const storagedTranscript = window.localStorage.getItem(fieldKey.transcript);
@@ -46,7 +48,9 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
   }, []);
 
   const onSubmit = async () => {
+    setIsLoading(true);
     const res = await getTranscriptApi(localVideoUrl);
+    setIsLoading(false);
     const parsedTranscript = parseApiResponse(res);
     videoMethods.setValue(fieldKey.videoUrl, localVideoUrl);
     videoMethods.setValue(fieldKey.transcript, parsedTranscript);
@@ -134,8 +138,25 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
         </button>
         <button
           type="submit"
-          className="bg-btn hover:bg-btn-hover text-white rounded-full px-4 py-2 font-semibold"
+          className="bg-btn hover:bg-btn-hover text-white rounded-full px-4 py-2 font-semibold flex flex-row items-center gap-2"
+          style={
+            isLoading
+              ? {
+                  backgroundColor: "rgba(67, 56, 202, 0.5)",
+                  color: "rgba(255, 255, 255, 0.5)",
+                }
+              : undefined
+          }
+          disabled={isLoading}
         >
+          {isLoading && (
+            <Image
+              src={"https://i.sstatic.net/kOnzy.gif"}
+              alt="loading-icon"
+              width={15}
+              height={15}
+            />
+          )}
           Start Dictation
         </button>
       </div>
