@@ -1,5 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
+type SubtitleData = {
+  subtitles: [
+    {
+      languageName: string;
+      languageCode: string;
+      isTranslatable: boolean;
+      url: string;
+    }
+  ];
+};
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -50,8 +61,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const subtitlesData = await subtitlesResponse.json();
-    const transcriptUrl = subtitlesData.subtitles?.[0]?.url;
+    const subtitlesData: SubtitleData = await subtitlesResponse.json();
+    const englistUrl = subtitlesData?.subtitles?.find(
+      (sub) => sub.languageCode === "en"
+    );
+    const transcriptUrl = englistUrl?.url;
 
     if (!transcriptUrl) {
       return NextResponse.json(
