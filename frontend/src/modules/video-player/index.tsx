@@ -2,18 +2,24 @@
 import { useWatch } from "react-hook-form";
 import YouTube, { YouTubeEvent, YouTubePlayer } from "react-youtube";
 import VideoForm from "../video-form";
-import { VideoFormState, fieldKey } from "@/const";
+import { VideoFormState, shadowingFieldKey, dictationFieldKey } from "@/const";
 import { useVideoForm } from "@/context/video-form";
 import { useEffect, useState } from "react";
 import { extractVideoId } from "@/utils/youtube";
 import { VideoDataForm, Transcript } from "@/interface";
 
-const VideoPlayer: React.FC = () => {
+type VideoPlayerProps = {
+  type: VideoFormState;
+};
+
+const VideoPlayer: React.FC<VideoPlayerProps> = ({ type }) => {
   const { videoMethods } = useVideoForm();
   const { control } = videoMethods;
   const [videoId, setVideoId] = useState<string | null>(null);
   const [player, setPlayer] = useState<YouTubePlayer | null>(null);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
+  const fieldKey =
+    type === VideoFormState.dictation ? dictationFieldKey : shadowingFieldKey;
   const [videoUrl, isPlaying, transcript, currentIndex] =
     useWatch<VideoDataForm>({
       control,
@@ -123,7 +129,7 @@ const VideoPlayer: React.FC = () => {
         )}
       </div>
       <div className="w-full">
-        <VideoForm formState={VideoFormState.dictation} />
+        <VideoForm formState={type} />
       </div>
     </div>
   );

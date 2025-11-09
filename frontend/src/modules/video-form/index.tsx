@@ -1,6 +1,11 @@
 "use client";
 import { Controller } from "react-hook-form";
-import { VideoFormState, fieldKey } from "@/const";
+import {
+  VideoFormState,
+  dictationFieldKey,
+  loading,
+  shadowingFieldKey,
+} from "@/const";
 import { useVideoForm } from "@/context/video-form";
 import { useEffect, useState } from "react";
 import { parseApiResponse } from "@/utils/transcript";
@@ -20,7 +25,10 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
   // const [transcript, setTranscript] = useState<string>("");
   const [localVideoUrl, setLocalVideoUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
+  const fieldKey =
+    formState === VideoFormState.dictation
+      ? dictationFieldKey
+      : shadowingFieldKey;
   useEffect(() => {
     const storagedTranscript = window.localStorage.getItem(fieldKey.transcript);
     if (storagedTranscript) {
@@ -150,14 +158,11 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
           disabled={isLoading}
         >
           {isLoading && (
-            <Image
-              src={"https://i.sstatic.net/kOnzy.gif"}
-              alt="loading-icon"
-              width={15}
-              height={15}
-            />
+            <Image src={loading} alt="loading-icon" width={15} height={15} />
           )}
-          Start Dictation
+          {formState === VideoFormState.dictation
+            ? "Start Dictation"
+            : "Start Shadowing"}
         </button>
       </div>
     </form>

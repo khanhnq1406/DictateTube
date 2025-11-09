@@ -7,6 +7,8 @@ export const correct = `${resources}correct.png`;
 export const warning = `${resources}warning.png`;
 export const play = `${resources}play.png`;
 export const pause = `${resources}pause.png`;
+export const loading = `${resources}grey_style.gif`;
+export const microphone = `${resources}microphone.png`;
 
 export enum AnswerState {
   full = "full",
@@ -16,13 +18,23 @@ export enum AnswerState {
 export enum VideoFormState {
   landing = "landing",
   dictation = "dictation",
+  shadowing = "shadowing",
 }
 
-export enum fieldKey {
-  currentIndex = "currentIndex",
-  transcript = "transcript",
-  videoUrl = "videoUrl",
-  isPlaying = "isPlaying",
+export enum dictationFieldKey {
+  currentIndex = "dictationCurrentIndex",
+  transcript = "dictationTranscript",
+  videoUrl = "dictationVideoUrl",
+  isPlaying = "dictationIsPlaying",
+  id = "id",
+  username = "username",
+}
+
+export enum shadowingFieldKey {
+  currentIndex = "shadowingCurrentIndex",
+  transcript = "shadowingTranscript",
+  videoUrl = "shadowingVideoUrl",
+  isPlaying = "shadowingIsPlaying",
   id = "id",
   username = "username",
 }

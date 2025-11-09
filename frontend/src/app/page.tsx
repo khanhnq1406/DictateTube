@@ -2,7 +2,7 @@
 import Landing from "@/modules/landing/index";
 import Header from "@/modules/header/index";
 import Footer from "@/modules/footer/index";
-import { fieldKey, glow, VideoFormState } from "@/const";
+import { dictationFieldKey as fieldKey, glow, VideoFormState } from "@/const";
 import { useForm, useWatch } from "react-hook-form";
 import { PageState } from "@/interface";
 import Dictation from "@/modules/dictation";

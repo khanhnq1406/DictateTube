@@ -1,14 +1,24 @@
-import { VideoFormState } from "./const";
+import { VideoFormState, dictationFieldKey, shadowingFieldKey } from "./const";
 
 export interface Transcript {
   time: number;
   transcript: string;
 }
+
+type FieldKeyValues =
+  | typeof dictationFieldKey[keyof typeof dictationFieldKey]
+  | typeof shadowingFieldKey[keyof typeof shadowingFieldKey];
+
 export interface VideoDataForm {
-  videoUrl: string;
-  transcript: Transcript[];
-  isPlaying: boolean;
-  currentIndex: number;
+  [key: string]: string | Transcript[] | boolean | number;
+  [dictationFieldKey.videoUrl]: string;
+  [dictationFieldKey.transcript]: Transcript[];
+  [dictationFieldKey.isPlaying]: boolean;
+  [dictationFieldKey.currentIndex]: number;
+  [shadowingFieldKey.videoUrl]: string;
+  [shadowingFieldKey.transcript]: Transcript[];
+  [shadowingFieldKey.isPlaying]: boolean;
+  [shadowingFieldKey.currentIndex]: number;
 }
 
 export interface PageState {

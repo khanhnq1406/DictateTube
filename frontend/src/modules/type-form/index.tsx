@@ -6,7 +6,7 @@ import {
   pause,
   play,
   warning,
-  fieldKey,
+  dictationFieldKey as fieldKey,
 } from "@/const";
 import { useVideoForm } from "@/context/video-form";
 import {
