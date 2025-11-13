@@ -18,15 +18,64 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useWatch } from "react-hook-form";
 import { VideoDataForm, Transcript } from "@/interface";
-
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from "react-speech-recognition";
+import { RecordButton } from "./components";
 const VoiceRecord: React.FC = () => {
   const { videoMethods } = useVideoForm();
   const { control, setValue } = videoMethods;
-
   const [transcript, isPlaying, currentIndex] = useWatch<VideoDataForm>({
     control,
     name: [fieldKey.transcript, fieldKey.isPlaying, fieldKey.currentIndex],
   }) as [Transcript[], boolean, number];
+
+  const {
+    transcript: recordTranscript,
+    listening,
+    resetTranscript,
+  } = useSpeechRecognition();
+
+  const startListening = () => {
+    resetTranscript();
+    SpeechRecognition.startListening({
+      continuous: true,
+      language: "en-US",
+    });
+  };
+
+  const [silenceTimer, setSilenceTimer] = useState<NodeJS.Timeout | null>(null);
+  const [lastSpeechTime, setLastSpeechTime] = useState(Date.now());
+
+  const [isNew, setIsNew] = useState(true);
+
+  useEffect(() => {
+    // When speech is detected, reset the silence timer
+    if (recordTranscript && recordTranscript.trim()) {
+      setLastSpeechTime(Date.now());
+
+      // Clear existing timer
+      if (silenceTimer) {
+        clearTimeout(silenceTimer);
+      }
+
+      // Set new timer to stop after 3 seconds of silence
+      const timer = setTimeout(() => {
+        SpeechRecognition.stopListening();
+      }, 2000);
+
+      setSilenceTimer(timer);
+    }
+  }, [recordTranscript]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (silenceTimer) {
+        clearTimeout(silenceTimer);
+      }
+    };
+  }, [silenceTimer]);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -46,16 +95,12 @@ const VoiceRecord: React.FC = () => {
     };
   }, [isPlaying]);
 
-  // Return early if transcript is not available yet
-  if (!transcript || transcript.length === 0) {
-    return (
-      <div className="bg-bg-secondary w-full h-full rounded-3xl shadow-shadow-primary-l py-8 flex flex-col gap-8 px-10 mobile:justify-center mobile:items-center mobile:p-[5vw] mobile:gap-[5vw]">
-        <div className="flex items-center justify-center h-full">
-          <p>Loading transcript data...</p>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!listening) {
+      setIsNew(false);
+      console.log("Handle stop");
+    }
+  }, [listening, recordTranscript]);
 
   const resetState = () => {
     setValue(fieldKey.currentIndex, currentIndex + 1);
@@ -66,6 +111,7 @@ const VoiceRecord: React.FC = () => {
     setValue(fieldKey.isPlaying, true);
   };
   const handleNavigation = (direction: "prev" | "next") => {
+    setIsNew(true);
     if (direction === "prev" && currentIndex > 0) {
       setValue(fieldKey.currentIndex, currentIndex - 1);
       window.localStorage.setItem(
@@ -85,6 +131,17 @@ const VoiceRecord: React.FC = () => {
   const handlePlay = () => {
     setValue(fieldKey.isPlaying, !isPlaying);
   };
+
+  // Return early if transcript is not available yet
+  if (!transcript || transcript.length === 0) {
+    return (
+      <div className="bg-bg-secondary w-full h-full rounded-3xl shadow-shadow-primary-l py-8 flex flex-col gap-8 px-10 mobile:justify-center mobile:items-center mobile:p-[5vw] mobile:gap-[5vw]">
+        <div className="flex items-center justify-center h-full">
+          <p>Loading transcript data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-bg-secondary w-full h-full rounded-3xl shadow-shadow-primary-l py-8 flex flex-col gap-8 px-10 mobile:justify-center mobile:items-center mobile:p-[5vw] mobile:gap-[5vw]">
@@ -146,16 +203,31 @@ const VoiceRecord: React.FC = () => {
         </div>
         <div>
           <div className="font-bold">Your Speech</div>
-          <div>This</div>
+          <div>{recordTranscript}</div>
         </div>
         <div>
-          <div className="flex justify-center flex-col gap-2 items-center">
-            <div className="flex justify-center items-center bg-btn p-4 rounded-full hover:bg-btn-hover">
-              <Image src={microphone} alt="microphone" width={20} height={20} />
-            </div>
-            <div>Record</div>
-            <div className="text-text-secondary">Tap to record</div>
-          </div>
+          {!listening ? (
+            <>
+              {isNew ? (
+                <>
+                  <RecordButton onClick={startListening} intent="start" />
+                </>
+              ) : (
+                <div className="flex w-full justify-between items-center">
+                  <RecordButton onClick={startListening} intent="start" />
+                  <div className="rounded-full">80%</div>
+                  <div className="flex justify-center items-center bg-btn p-4 rounded-full hover:bg-btn-hover">
+                    Next
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <RecordButton
+              onClick={() => SpeechRecognition.stopListening()}
+              intent="stop"
+            />
+          )}
         </div>
       </div>
     </div>
