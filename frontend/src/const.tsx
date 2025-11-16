@@ -9,6 +9,7 @@ export const play = `${resources}play.png`;
 export const pause = `${resources}pause.png`;
 export const loading = `${resources}grey_style.gif`;
 export const microphone = `${resources}microphone.png`;
+export const next = `${resources}right-arrow.png`;
 
 export enum AnswerState {
   full = "full",

@@ -5,10 +5,11 @@ import Image from "next/image";
 type RecordButtonType = {
   intent: "start" | "stop";
   onClick?: () => void;
+  isNew?: boolean;
 };
 
 export const RecordButton: React.FC<RecordButtonType> = (props) => {
-  const { onClick, intent } = props;
+  const { onClick, intent, isNew = false } = props;
 
   if (intent === "start") {
     return (
@@ -20,7 +21,7 @@ export const RecordButton: React.FC<RecordButtonType> = (props) => {
           <Image src={microphone} alt="microphone" width={20} height={20} />
         </div>
         <div>Record</div>
-        <div className="text-text-secondary">Tap to record</div>
+        {isNew && <div className="text-text-secondary">Tap to record</div>}
       </div>
     );
   } else {
@@ -37,4 +38,62 @@ export const RecordButton: React.FC<RecordButtonType> = (props) => {
       </div>
     );
   }
+};
+
+type CircularProgressProps = {
+  progress: number; // 0 to 1
+  size?: number;
+  strokeWidth?: number;
+  className?: string;
+  showPercentage?: boolean;
+};
+
+export const CircularProgress: React.FC<CircularProgressProps> = ({
+  progress,
+  size = 96,
+  strokeWidth = 8,
+  className = "",
+  showPercentage = true,
+}) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference * (1 - progress);
+
+  return (
+    <div className={`relative`} style={{ width: size, height: size }}>
+      <svg className="transform" width={size} height={size}>
+        {/* Background circle */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          fill="#4f46e5"
+          className="text-gray-300"
+        />
+        {/* Progress circle */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          fill="none"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          className={`text-green-500 transition-all duration-300 ease-out ${className}`}
+          strokeLinecap="round"
+        />
+      </svg>
+      {showPercentage && (
+        <div
+          className="absolute inset-0 flex items-center justify-center text-xl font-semibold"
+          style={{ fontSize: size * 0.2 }}
+        >
+          {Math.round(progress * 100)}%
+        </div>
+      )}
+    </div>
+  );
 };

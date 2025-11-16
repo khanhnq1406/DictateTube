@@ -4,7 +4,7 @@ import {
   pause,
   play,
   shadowingFieldKey as fieldKey,
-  microphone,
+  next,
 } from "@/const";
 import { useVideoForm } from "@/context/video-form";
 import {
@@ -17,12 +17,16 @@ import {
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useWatch } from "react-hook-form";
+
 import { VideoDataForm, Transcript } from "@/interface";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
-import { RecordButton } from "./components";
+import { RecordButton, CircularProgress } from "./components";
+import { compareTranscripts } from "./helpers";
+import { useWindowSize } from "@/utils/hooks";
 const VoiceRecord: React.FC = () => {
+  const { width } = useWindowSize();
   const { videoMethods } = useVideoForm();
   const { control, setValue } = videoMethods;
   const [transcript, isPlaying, currentIndex] = useWatch<VideoDataForm>({
@@ -38,6 +42,9 @@ const VoiceRecord: React.FC = () => {
 
   const startListening = () => {
     resetTranscript();
+    // Reset highlighted words and progress when starting new recording
+    setHighlightedWords([]);
+    setProgress(0);
     SpeechRecognition.startListening({
       continuous: true,
       language: "en-US",
@@ -48,10 +55,15 @@ const VoiceRecord: React.FC = () => {
   const [lastSpeechTime, setLastSpeechTime] = useState(Date.now());
 
   const [isNew, setIsNew] = useState(true);
+  const [progress, setProgress] = useState(0);
+  const [highlightedWords, setHighlightedWords] = useState<
+    Array<{ word: string; isCorrect: boolean }>
+  >([]);
 
   useEffect(() => {
     // When speech is detected, reset the silence timer
     if (recordTranscript && recordTranscript.trim()) {
+      console.log(lastSpeechTime);
       setLastSpeechTime(Date.now());
 
       // Clear existing timer
@@ -98,7 +110,13 @@ const VoiceRecord: React.FC = () => {
   useEffect(() => {
     if (!listening) {
       setIsNew(false);
-      console.log("Handle stop");
+      // Compare transcripts when recording stops
+      const originalText = transcript?.[currentIndex]?.transcript || "";
+      if (recordTranscript && originalText) {
+        const result = compareTranscripts(originalText, recordTranscript);
+        setHighlightedWords(result.words);
+        setProgress(result.accuracy);
+      }
     }
   }, [listening, recordTranscript]);
 
@@ -203,21 +221,48 @@ const VoiceRecord: React.FC = () => {
         </div>
         <div>
           <div className="font-bold">Your Speech</div>
-          <div>{recordTranscript}</div>
+          <div className="break-words">
+            {highlightedWords.length > 0 ? (
+              highlightedWords.map((item, index) => (
+                <span
+                  key={index}
+                  className={item.isCorrect ? "text-green-500" : "text-red-500"}
+                >
+                  {item.word}
+                  {index < highlightedWords.length - 1 && " "}
+                </span>
+              ))
+            ) : (
+              <div>{recordTranscript}</div>
+            )}
+          </div>
         </div>
         <div>
           {!listening ? (
             <>
               {isNew ? (
                 <>
-                  <RecordButton onClick={startListening} intent="start" />
+                  <RecordButton
+                    onClick={startListening}
+                    intent="start"
+                    isNew={isNew}
+                  />
                 </>
               ) : (
-                <div className="flex w-full justify-between items-center">
+                <div className="flex w-full justify-center items-center gap-20 mobile:gap-0 mobile:justify-between">
                   <RecordButton onClick={startListening} intent="start" />
-                  <div className="rounded-full">80%</div>
-                  <div className="flex justify-center items-center bg-btn p-4 rounded-full hover:bg-btn-hover">
-                    Next
+                  <CircularProgress
+                    progress={progress}
+                    size={width < 640 ? 80 : 96}
+                  />
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <div
+                      className="flex justify-center items-center bg-btn p-4 rounded-full hover:bg-btn-hover"
+                      onClick={() => handleNavigation("next")}
+                    >
+                      <Image src={next} alt="next" width={20} height={20} />
+                    </div>
+                    <div>Next</div>
                   </div>
                 </div>
               )}
