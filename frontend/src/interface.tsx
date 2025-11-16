@@ -5,10 +5,6 @@ export interface Transcript {
   transcript: string;
 }
 
-type FieldKeyValues =
-  | typeof dictationFieldKey[keyof typeof dictationFieldKey]
-  | typeof shadowingFieldKey[keyof typeof shadowingFieldKey];
-
 export interface VideoDataForm {
   [key: string]: string | Transcript[] | boolean | number;
   [dictationFieldKey.videoUrl]: string;
