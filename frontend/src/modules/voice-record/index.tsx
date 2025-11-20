@@ -129,6 +129,9 @@ const VoiceRecord: React.FC = () => {
       String(currentIndex + 1)
     );
     setValue(fieldKey.isPlaying, true);
+    setProgress(0);
+    setHighlightedWords([]);
+    resetTranscript();
   };
   const handleNavigation = (direction: "prev" | "next") => {
     setIsNew(true);
