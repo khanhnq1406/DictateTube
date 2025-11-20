@@ -12,15 +12,16 @@ import { parseApiResponse } from "@/utils/transcript";
 import { getTranscriptApi } from "@/utils/getTranscriptApi";
 import { v4 as uuidv4 } from "uuid";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 type VideoFormProps = {
   formState: VideoFormState;
-  setPage?: (page: VideoFormState) => void;
 };
 
 const VideoForm: React.FC<VideoFormProps> = (props) => {
-  const { formState, setPage } = props;
+  const { formState } = props;
   const { videoMethods } = useVideoForm();
+  const router = useRouter();
   const { control, handleSubmit } = videoMethods;
   // const [transcript, setTranscript] = useState<string>("");
   const [localVideoUrl, setLocalVideoUrl] = useState("");
@@ -91,8 +92,8 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
       //   console.log(error);
       // }
     }
-    if (formState === VideoFormState.landing && setPage) {
-      setPage(VideoFormState.dictation);
+    if (formState === VideoFormState.landing) {
+      router.push("/dictation");
     }
   };
 
@@ -160,7 +161,7 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
           {isLoading && (
             <Image src={loading} alt="loading-icon" width={15} height={15} />
           )}
-          {formState === VideoFormState.dictation
+          {formState === VideoFormState.dictation || formState === VideoFormState.landing
             ? "Start Dictation"
             : "Start Shadowing"}
         </button>

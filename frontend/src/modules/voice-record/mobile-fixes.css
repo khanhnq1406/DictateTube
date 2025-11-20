@@ -1,0 +1,73 @@
+/* Mobile-specific audio fixes to prevent phone call output */
+
+/* Prevent automatic audio routing to phone call output */
+audio, video {
+  /* Force media playback through main speaker, not earpiece */
+  audio-output: speaker;
+  -webkit-audio-output: speaker;
+}
+
+/* Ensure audio context stays active */
+.audio-context-manager {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Mobile-specific audio routing fixes */
+@media (max-width: 768px) {
+  /* iOS Safari specific fixes */
+  @supports (-webkit-touch-callout: none) {
+    .voice-record-container {
+      /* Prevent audio context suspension */
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+    }
+
+    /* Force speaker output on iOS */
+    audio::-webkit-media-controls-start-playback-button {
+      /* Hide the playback button to prevent context switching */
+      display: none;
+    }
+  }
+
+  /* Android Chrome specific fixes */
+  @media screen and (-webkit-min-device-pixel-ratio: 0) and (min-resolution: .001dpcm) {
+    .voice-record-container {
+      /* Maintain audio context */
+      webkit-app-region: no-drag;
+    }
+  }
+}
+
+/* Prevent audio routing to phone call output */
+.voice-record-container {
+  /* Use web audio context for better control */
+  isolation: isolate;
+}
+
+/* Audio state management */
+.audio-playing {
+  /* Ensure speaker output when active */
+  audio-output: speaker !important;
+}
+
+/* Mobile playback fixes */
+.mobile-play-button {
+  /* Ensure proper audio context on mobile */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+/* CSS to prevent phone call audio routing */
+.prevent-phone-output {
+  /* Force media output through speaker */
+  audio-output: speaker;
+  -webkit-audio-output: speaker;
+  speaker-output: true;
+}

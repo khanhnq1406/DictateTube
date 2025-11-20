@@ -2,28 +2,16 @@
 import Landing from "@/modules/landing/index";
 import Header from "@/modules/header/index";
 import Footer from "@/modules/footer/index";
-import { dictationFieldKey as fieldKey, glow, VideoFormState } from "@/const";
-import { useForm, useWatch } from "react-hook-form";
-import { PageState } from "@/interface";
-import Dictation from "@/modules/dictation";
-import { useEffect } from "react";
+import { dictationFieldKey as fieldKey, glow } from "@/const";
 import { useVideoForm } from "@/context/video-form";
 import { parseTranscript } from "@/utils/transcript";
+import { useEffect } from "react";
 
 export default function Home() {
-  const pageMethods = useForm<PageState>();
-  const { control: pageControl, setValue: setPageValue } = pageMethods;
-  const [page] = useWatch({ control: pageControl, name: ["page"] });
-
   const { videoMethods } = useVideoForm();
   const { setValue: setVideoValue } = videoMethods;
 
   useEffect(() => {
-    if (window.localStorage.getItem(fieldKey.videoUrl)) {
-      setPageValue("page", VideoFormState.dictation);
-    } else {
-      setPageValue("page", VideoFormState.landing);
-    }
     if (window.localStorage.getItem(fieldKey.transcript)) {
       const parsedTranscript = parseTranscript(
         window.localStorage.getItem(fieldKey.transcript) || ""
@@ -32,30 +20,21 @@ export default function Home() {
     }
   }, []);
 
-  const setPage = (newPage: VideoFormState) => {
-    setPageValue("page", newPage);
-  };
-
   return (
     <div
       className={
         "flex flex-col items-center justify-items-center place-content-between min-h-screen p-8 gap-16 sm:p-8 font-[family-name:var(--font-plus-jakarta-sans)] mobile:max-w-[100vw] mobile:flex mobile:flex-col mobile:justify-center mobile:p-[2vw] mobile:py-[5vw] mobile:gap-[5vw]"
       }
-      style={
-        page === VideoFormState.landing
-          ? {
-              backgroundImage: `url(${glow})`,
-              backgroundSize: "cover",
-              justifyContent: "space-between",
-            }
-          : {}
-      }
+      style={{
+        backgroundImage: `url(${glow})`,
+        backgroundSize: "cover",
+        justifyContent: "space-between",
+      }}
     >
       <header className="row-start-1 flex gap-6 flex-wrap items-center justify-center w-full">
         <Header />
       </header>
-      {page === VideoFormState.landing && <Landing setPage={setPage} />}
-      {page === VideoFormState.dictation && <Dictation />}
+      <Landing />
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
         <Footer />
       </footer>

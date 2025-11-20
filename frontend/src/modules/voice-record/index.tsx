@@ -25,10 +25,19 @@ import SpeechRecognition, {
 import { RecordButton, CircularProgress } from "./components";
 import { compareTranscripts } from "./helpers";
 import { useWindowSize } from "@/utils/hooks";
+import { audioOutputManager } from "./audio-helpers";
+import { useMobileAudio } from "./useMobileAudio";
+import "./mobile-fixes.css";
 const VoiceRecord: React.FC = () => {
   const { width } = useWindowSize();
   const { videoMethods } = useVideoForm();
   const { control, setValue } = videoMethods;
+
+  // Initialize mobile audio handling to prevent phone call output
+  const { forceSpeakerOutput } = useMobileAudio({
+    preferSpeakerOutput: true,
+    preventPhoneCallOutput: true,
+  });
   const [transcript, isPlaying, currentIndex] = useWatch<VideoDataForm>({
     control,
     name: [fieldKey.transcript, fieldKey.isPlaying, fieldKey.currentIndex],
@@ -40,15 +49,27 @@ const VoiceRecord: React.FC = () => {
     resetTranscript,
   } = useSpeechRecognition();
 
-  const startListening = () => {
+  const startListening = async () => {
     resetTranscript();
     // Reset highlighted words and progress when starting new recording
     setHighlightedWords([]);
     setProgress(0);
-    SpeechRecognition.startListening({
-      continuous: true,
-      language: "en-US",
-    });
+
+    try {
+      // Force speaker output to prevent phone call routing
+      await forceSpeakerOutput();
+
+      // Initialize audio context for better mobile control
+      audioOutputManager.initializeAudioContext();
+
+      // Start speech recognition with mobile-friendly options
+      SpeechRecognition.startListening({
+        continuous: true,
+        language: "en-US",
+      });
+    } catch (error) {
+      console.error('Failed to start speech recognition:', error);
+    }
   };
 
   const [silenceTimer, setSilenceTimer] = useState<NodeJS.Timeout | null>(null);
@@ -162,7 +183,7 @@ const VoiceRecord: React.FC = () => {
   }
 
   return (
-    <div className="bg-bg-secondary w-full h-full rounded-3xl shadow-shadow-primary-l py-8 flex flex-col gap-8 px-10 mobile:justify-center mobile:items-center mobile:p-[5vw] mobile:gap-[5vw]">
+    <div className="bg-bg-secondary w-full h-full rounded-3xl shadow-shadow-primary-l py-8 flex flex-col gap-8 px-10 mobile:justify-center mobile:items-center mobile:p-[5vw] mobile:gap-[5vw] voice-record-container prevent-phone-output">
       <div className="flex flex-row gap-6">
         <TooltipProvider>
           <Tooltip>

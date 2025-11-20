@@ -1,11 +1,7 @@
 import { VideoFormState } from "@/const";
 import VideoForm from "../video-form";
 
-type LandingProps = {
-  setPage: (page: VideoFormState) => void;
-};
-
-const Landing: React.FC<LandingProps> = ({ setPage }) => {
+const Landing: React.FC = () => {
   return (
     <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
       <div className="flex flex-col gap-6 items-center">
@@ -16,7 +12,7 @@ const Landing: React.FC<LandingProps> = ({ setPage }) => {
           Listen. Type. Learn.
         </p>
         <div className="w-1/2 mobile:w-full mobile:p-[5vw]">
-          <VideoForm formState={VideoFormState.landing} setPage={setPage} />
+          <VideoForm formState={VideoFormState.landing} />
         </div>
       </div>
     </main>

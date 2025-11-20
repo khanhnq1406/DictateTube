@@ -2,8 +2,8 @@
 export const compareTranscripts = (original: string, recorded: string) => {
   if (!original || !recorded) return { words: [], accuracy: 0 };
 
-  const originalWords = original.toLowerCase().trim().split(/\s+/);
-  const recordedWords = recorded.toLowerCase().trim().split(/\s+/);
+  const originalWords = original.toLowerCase().trim().replace(/[^a-z0-9\s]/g, '').split(/\s+/);
+  const recordedWords = recorded.toLowerCase().trim().replace(/[^a-z0-9\s]/g, '').split(/\s+/);
 
   const highlighted = recordedWords.map((word, index) => {
     const isCorrect =

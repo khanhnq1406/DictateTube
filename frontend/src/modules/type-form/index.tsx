@@ -78,7 +78,7 @@ const TypeForm: React.FC = () => {
       setTypeText("");
       setIsCorrect(undefined);
       setAnswer("");
-    } else if (direction === "next" && currentIndex < transcript.length - 1) {
+    } else if (direction === "next" && currentIndex < transcript?.length - 1) {
       resetState();
     }
   };
@@ -90,7 +90,7 @@ const TypeForm: React.FC = () => {
   const handleCheckAnswer = () => {
     setAnswer(getDisplayText());
     const typedWords = typeText.trim().toLowerCase().split(/\s+/);
-    const correctWords = transcript[currentIndex].transcript
+    const correctWords = transcript?.[currentIndex].transcript
       .toLowerCase()
       .split(/\s+/);
 
@@ -111,7 +111,7 @@ const TypeForm: React.FC = () => {
   };
 
   const handleNext = () => {
-    if (currentIndex < transcript.length - 1) {
+    if (currentIndex < transcript?.length - 1) {
       resetState();
     }
   };
@@ -119,7 +119,7 @@ const TypeForm: React.FC = () => {
   const getDisplayText = (isFull?: boolean) => {
     if (answerState === AnswerState.immediately && !isFull) {
       const typedWords = typeText.trim().toLowerCase().split(/\s+/);
-      const correctWords = transcript[currentIndex].transcript
+      const correctWords = transcript?.[currentIndex].transcript
         .toLowerCase()
         .split(/\s+/);
 
@@ -134,10 +134,21 @@ const TypeForm: React.FC = () => {
         })
         .join(" ");
     } else {
-      return transcript[currentIndex].transcript;
+      return transcript?.[currentIndex].transcript;
     }
   };
 
+    // Return early if transcript is not available yet
+  if (!transcript || transcript.length === 0) {
+    return (
+      <div className="bg-bg-secondary w-full h-full rounded-3xl shadow-shadow-primary-l py-8 flex flex-col gap-8 px-10 mobile:justify-center mobile:items-center mobile:p-[5vw] mobile:gap-[5vw]">
+        <div className="flex items-center justify-center h-full">
+          <p>Loading transcript data...</p>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="bg-bg-secondary w-full h-full rounded-3xl shadow-shadow-primary-l py-8 flex flex-col gap-8 px-10 mobile:justify-center mobile:items-center mobile:p-[5vw] mobile:gap-[5vw]">
       <div className="flex flex-row gap-6">
@@ -180,11 +191,11 @@ const TypeForm: React.FC = () => {
               className="rotate-180"
             />
           </button>
-          <p>{`${currentIndex + 1} / ${transcript.length}`}</p>
+          <p>{`${currentIndex + 1} / ${transcript?.length}`}</p>
           <button
             className="bg-bg-primary p-2 rounded-md hover:bg-slate-900"
             onClick={() => handleNavigation("next")}
-            disabled={currentIndex === transcript.length - 1}
+            disabled={currentIndex === transcript?.length - 1}
           >
             <Image src={arrow} alt="arrow-icon" width={20} height={20} />
           </button>

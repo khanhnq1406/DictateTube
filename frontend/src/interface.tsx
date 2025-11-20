@@ -1,4 +1,4 @@
-import { VideoFormState, dictationFieldKey, shadowingFieldKey } from "./const";
+import { dictationFieldKey, shadowingFieldKey } from "./const";
 
 export interface Transcript {
   time: number;
@@ -17,9 +17,6 @@ export interface VideoDataForm {
   [shadowingFieldKey.currentIndex]: number;
 }
 
-export interface PageState {
-  page: VideoFormState;
-}
 
 export interface VideoPlayer {
   isPlay: boolean;
