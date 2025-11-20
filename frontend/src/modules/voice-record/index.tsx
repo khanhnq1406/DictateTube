@@ -52,6 +52,28 @@ const VoiceRecord: React.FC = () => {
       // Force speaker output to prevent phone call routing
       await forceSpeakerOutput();
 
+      // For iOS devices, use additional speaker forcing
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (isIOS) {
+        // Force iOS speaker output using Web Audio API
+        await audioOutputManager.forceIOSSpeakerOutput();
+
+        // Create and configure iOS speaker element
+        const iosSpeakerElement = audioOutputManager.createIOSSpeakerElement();
+        iosSpeakerElement.src =
+          "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmoeBjiS2Oy9diMFl2+z5NVm";
+
+        try {
+          await iosSpeakerElement.play();
+          setTimeout(() => {
+            iosSpeakerElement.pause();
+            iosSpeakerElement.currentTime = 0;
+          }, 100);
+        } catch (error) {
+          console.warn("iOS speaker routing attempt failed:", error);
+        }
+      }
+
       // Initialize audio context for better mobile control
       audioOutputManager.initializeAudioContext();
 
@@ -59,6 +81,7 @@ const VoiceRecord: React.FC = () => {
       SpeechRecognition.startListening({
         continuous: true,
         language: "en-US",
+        interimResults: true,
       });
     } catch (error) {
       console.error("❌ Failed to start speech recognition:", error);

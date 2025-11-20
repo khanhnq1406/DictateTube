@@ -15,6 +15,10 @@ export class AudioOutputManager {
     if (!this.audioContext) {
       const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       this.audioContext = new AudioContextClass();
+
+      // Configure for better iOS performance
+      this.audioContext.destination.channelInterpretation = 'discrete';
+      this.audioContext.destination.channelCount = 2; // Stereo for speaker output
     }
     return this.audioContext;
   }
@@ -88,6 +92,62 @@ export class AudioOutputManager {
       console.error('Failed to play audio:', error);
       throw error;
     }
+  }
+
+  // Force iOS speaker output using Web Audio API
+  async forceIOSSpeakerOutput(): Promise<void> {
+    if (!this.audioContext) {
+      this.audioContext = this.initializeAudioContext();
+    }
+
+    try {
+      // Ensure audio context is running
+      if (this.audioContext.state === 'suspended') {
+        await this.audioContext.resume();
+      }
+
+      // Create a high-frequency tone that routes to speaker
+      const oscillator = this.audioContext.createOscillator();
+      const gainNode = this.audioContext.createGain();
+
+      // Set frequency to 20kHz (near ultrasonic - mostly inaudible)
+      oscillator.frequency.value = 20000;
+      gainNode.gain.value = 0.001; // Very low volume
+
+      // Connect to speaker output
+      oscillator.connect(gainNode);
+      gainNode.connect(this.audioContext.destination);
+
+      // Play for a very short duration to establish speaker route
+      oscillator.start();
+
+      // Stop after 100ms
+      setTimeout(() => {
+        oscillator.stop();
+        oscillator.disconnect();
+        gainNode.disconnect();
+      }, 100);
+
+    } catch (error) {
+      console.warn('Failed to force iOS speaker output:', error);
+    }
+  }
+
+  // Create a dedicated iOS speaker routing element
+  createIOSSpeakerElement(): HTMLAudioElement {
+    const audio = new Audio();
+
+    // iOS-specific attributes
+    audio.setAttribute('playsinline', 'true');
+    audio.setAttribute('x-webkit-airplay', 'allow');
+    audio.setAttribute('controls', ''); // May help with audio routing
+
+    // Configure for speaker output
+    audio.muted = false;
+    audio.volume = 0.05; // Very low volume
+    audio.preload = 'auto';
+
+    return audio;
   }
 
   // Cleanup

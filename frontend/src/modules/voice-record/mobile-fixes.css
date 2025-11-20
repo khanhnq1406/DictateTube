@@ -92,3 +92,48 @@ audio, video {
   -webkit-audio-output: speaker;
   speaker-output: true;
 }
+
+/* iOS-specific audio fixes */
+@supports (-webkit-touch-callout: none) {
+  /* iPhone specific speaker routing */
+  .voice-record-container {
+    /* Prevent iOS from routing to earpiece */
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* Force speaker output for all audio elements */
+  .voice-record-container audio {
+    /* Force use of main speaker instead of receiver */
+    -webkit-appearance: none;
+    appearance: none;
+    audio-output: speaker !important;
+    -webkit-audio-output: speaker !important;
+  }
+
+  /* iOS Safari specific: Prevent automatic audio routing to phone call */
+  .voice-record-container audio::-webkit-media-controls-panel {
+    display: none !important;
+  }
+
+  /* Ensure audio context stays in speaker mode */
+  .ios-speaker-force {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: -9999;
+    left: -9999px;
+    top: -9999px;
+  }
+
+  /* Prevent iOS from switching to phone call mode */
+  .voice-record-container * {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
