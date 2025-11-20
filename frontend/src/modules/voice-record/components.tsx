@@ -11,15 +11,41 @@ type RecordButtonType = {
 export const RecordButton: React.FC<RecordButtonType> = (props) => {
   const { onClick, intent, isNew = false } = props;
 
+  const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
+    // Only prevent default on mouse events, not touch events to avoid passive listener errors
+    if ("type" in e && e.type === "click") {
+      e.preventDefault();
+    }
+    if ("stopPropagation" in e) {
+      e.stopPropagation();
+    }
+    if (onClick) {
+      onClick();
+    }
+  };
+
+  const handleTouchEnd = () => {
+    // Handle touch events separately to avoid passive listener issues
+    if (onClick) {
+      // Small delay to ensure the touch event is fully processed
+      setTimeout(() => {
+        onClick();
+      }, 50);
+    }
+  };
+
   if (intent === "start") {
     return (
       <div className="flex justify-center flex-col gap-2 items-center h-28">
-        <div
-          className="flex justify-center items-center bg-btn p-4 rounded-full hover:bg-btn-hover"
-          onClick={onClick}
+        <button
+          type="button"
+          className="flex justify-center items-center bg-btn p-4 rounded-full hover:bg-btn-hover active:bg-btn-hover focus:outline-none focus:ring-2 focus:ring-btn-focus mobile-play-button"
+          onClick={handleClick}
+          onTouchEnd={() => handleTouchEnd()}
+          style={{ WebkitTapHighlightColor: "transparent" }}
         >
           <Image src={microphone} alt="microphone" width={20} height={20} />
-        </div>
+        </button>
         <div>Record</div>
         {isNew && <div className="text-text-secondary">Tap to record</div>}
       </div>
@@ -27,12 +53,15 @@ export const RecordButton: React.FC<RecordButtonType> = (props) => {
   } else {
     return (
       <div className="flex justify-center flex-col gap-2 items-center h-28">
-        <div
-          className="flex justify-center items-center bg-red-500 p-4 rounded-full hover:bg-red-700"
-          onClick={onClick}
+        <button
+          type="button"
+          className="flex justify-center items-center bg-red-500 p-4 rounded-full hover:bg-red-700 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 mobile-play-button"
+          onClick={handleClick}
+          onTouchEnd={handleTouchEnd}
+          style={{ WebkitTapHighlightColor: "transparent" }}
         >
           <Image src={microphone} alt="microphone" width={20} height={20} />
-        </div>
+        </button>
         <div>Recording...</div>
         <div className="text-text-secondary">Tap to stop</div>
       </div>

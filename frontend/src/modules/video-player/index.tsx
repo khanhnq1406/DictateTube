@@ -30,6 +30,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ type }) => {
         fieldKey.currentIndex,
       ],
     }) as [string, boolean, Transcript[], number];
+  const [localPlayingState, setLocalPlayingState] = useState(isPlaying);
+  const [isInternalStateChange, setIsInternalStateChange] = useState(false);
 
   useEffect(() => {
     if (videoUrl) {
@@ -38,8 +40,15 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ type }) => {
     }
   }, [videoUrl]);
 
+  // Synchronize local playing state with form state
+  useEffect(() => {
+    setLocalPlayingState(isPlaying);
+  }, [isPlaying]);
+
   useEffect(() => {
     let interval: NodeJS.Timeout;
+    let timeoutId: NodeJS.Timeout;
+    let stateChangeTimeout: NodeJS.Timeout;
 
     if (
       player !== null &&
@@ -49,29 +58,50 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ type }) => {
     ) {
       const currentTime = transcript[currentIndex].time;
       const nextTime = transcript[currentIndex + 1]?.time;
+
       const handlePlayback = () => {
+        // Add player ready state validation
+        if (!player || !isPlayerReady) {
+          console.warn("Player not ready, skipping playback control");
+          return;
+        }
+
         try {
-          if (isPlaying) {
+          // Set flag to indicate this is an internal state change
+          setIsInternalStateChange(true);
+
+          if (localPlayingState) {
             player.seekTo(currentTime);
             player.playVideo();
           } else {
             player.pauseVideo();
           }
+
+          // Reset flag after a short delay
+          stateChangeTimeout = setTimeout(() => setIsInternalStateChange(false), 200);
         } catch (error) {
           console.error("Error controlling video:", error);
+          setIsInternalStateChange(false);
         }
       };
 
-      // Initial playback control
-      handlePlayback();
+      // Debounce state updates to prevent race conditions
+      timeoutId = setTimeout(() => {
+        handlePlayback();
+      }, 100);
 
       // Set up interval to check if we need to move to next segment
       interval = setInterval(() => {
         try {
+          if (!player || !isPlayerReady) return;
+
           const currentPlayerTime = player.getCurrentTime();
           if (nextTime && currentPlayerTime >= nextTime) {
+            setIsInternalStateChange(true);
             player.pauseVideo();
-            videoMethods.setValue("isPlaying", false);
+            setLocalPlayingState(false);
+            videoMethods.setValue(fieldKey.isPlaying, false);
+            stateChangeTimeout = setTimeout(() => setIsInternalStateChange(false), 200);
           }
         } catch (error) {
           console.error("Error checking video time:", error);
@@ -83,8 +113,22 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ type }) => {
       if (interval) {
         clearInterval(interval);
       }
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      if (stateChangeTimeout) {
+        clearTimeout(stateChangeTimeout);
+      }
     };
-  }, [player, isPlayerReady, isPlaying, transcript, currentIndex]);
+  }, [
+    player,
+    isPlayerReady,
+    localPlayingState,
+    transcript,
+    currentIndex,
+    fieldKey.isPlaying,
+    fieldKey,
+  ]);
 
   const onPlayerReady = (event: YouTubeEvent) => {
     try {
@@ -92,6 +136,21 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ type }) => {
       setIsPlayerReady(true);
     } catch (error) {
       console.error("Error initializing player:", error);
+    }
+  };
+
+  const onPlayerStateChange = (event: YouTubeEvent) => {
+    try {
+      const playerState = event.target.getPlayerState();
+      const isVideoPlaying = playerState === 1; // YT.PlayerState.PLAYING
+
+      // Only sync player state back to form if this wasn't an internal change
+      if (!isInternalStateChange && isVideoPlaying !== localPlayingState) {
+        setLocalPlayingState(isVideoPlaying);
+        videoMethods.setValue(fieldKey.isPlaying, isVideoPlaying);
+      }
+    } catch (error) {
+      console.error("Error handling player state change:", error);
     }
   };
 
@@ -117,6 +176,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ type }) => {
           <YouTube
             videoId={videoId}
             onReady={onPlayerReady}
+            onStateChange={onPlayerStateChange}
             onError={onError}
             opts={opts}
             className="w-full aspect-video"

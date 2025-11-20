@@ -37,6 +37,13 @@ const TypeForm: React.FC = () => {
     name: [fieldKey.transcript, fieldKey.isPlaying, fieldKey.currentIndex],
   }) as [Transcript[], boolean, number];
 
+  const [localPlayingState, setLocalPlayingState] = useState(isPlaying);
+
+  // Synchronize local playing state with form state
+  useEffect(() => {
+    setLocalPlayingState(isPlaying);
+  }, [isPlaying]);
+
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -84,7 +91,9 @@ const TypeForm: React.FC = () => {
   };
 
   const handlePlay = () => {
-    setValue(fieldKey.isPlaying, !isPlaying);
+    const newState = !localPlayingState;
+    setLocalPlayingState(newState);
+    setValue(fieldKey.isPlaying, newState);
   };
 
   const handleCheckAnswer = () => {
@@ -138,7 +147,7 @@ const TypeForm: React.FC = () => {
     }
   };
 
-    // Return early if transcript is not available yet
+  // Return early if transcript is not available yet
   if (!transcript || transcript.length === 0) {
     return (
       <div className="bg-bg-secondary w-full h-full rounded-3xl shadow-shadow-primary-l py-8 flex flex-col gap-8 px-10 mobile:justify-center mobile:items-center mobile:p-[5vw] mobile:gap-[5vw]">
@@ -148,7 +157,7 @@ const TypeForm: React.FC = () => {
       </div>
     );
   }
-  
+
   return (
     <div className="bg-bg-secondary w-full h-full rounded-3xl shadow-shadow-primary-l py-8 flex flex-col gap-8 px-10 mobile:justify-center mobile:items-center mobile:p-[5vw] mobile:gap-[5vw]">
       <div className="flex flex-row gap-6">
@@ -156,11 +165,11 @@ const TypeForm: React.FC = () => {
           <Tooltip>
             <TooltipTrigger asChild>
               <button
-                className={`border border-btn hover:bg-bg-primary p-2 rounded-md 
+                className={`border border-btn hover:bg-bg-primary active:bg-bg-primary p-2 rounded-md 
                 }`}
                 onClick={handlePlay}
               >
-                {isPlaying ? (
+                {localPlayingState ? (
                   <Image src={pause} alt="pause-icon" width={20} height={20} />
                 ) : (
                   <Image src={play} alt="play-icon" width={20} height={20} />
@@ -179,7 +188,7 @@ const TypeForm: React.FC = () => {
 
         <div className="flex flex-row gap-4 items-center">
           <button
-            className="bg-bg-primary p-2 rounded-md hover:bg-slate-900"
+            className="bg-bg-primary p-2 rounded-md hover:bg-slate-900 active:bg-slate-900"
             onClick={() => handleNavigation("prev")}
             disabled={currentIndex === 0}
           >
@@ -193,7 +202,7 @@ const TypeForm: React.FC = () => {
           </button>
           <p>{`${currentIndex + 1} / ${transcript?.length}`}</p>
           <button
-            className="bg-bg-primary p-2 rounded-md hover:bg-slate-900"
+            className="bg-bg-primary p-2 rounded-md hover:bg-slate-900 active:bg-slate-900"
             onClick={() => handleNavigation("next")}
             disabled={currentIndex === transcript?.length - 1}
           >
@@ -254,7 +263,7 @@ const TypeForm: React.FC = () => {
         <div className="flex flex-row gap-4 mobile:flex-col">
           {isCorrect === true ? (
             <button
-              className="bg-text-success hover:bg-text-success-hover text-white rounded-full px-4 py-3 font-semibold w-40"
+              className="bg-text-success hover:bg-text-success-hover active:bg-text-success-hover text-white rounded-full px-4 py-3 font-semibold w-40"
               onClick={handleNext}
             >
               Next
@@ -262,13 +271,13 @@ const TypeForm: React.FC = () => {
           ) : (
             <>
               <button
-                className="bg-btn hover:bg-btn-hover text-white rounded-full px-4 py-3 font-semibold w-40"
+                className="bg-btn hover:bg-btn-hover active:bg-btn-hover text-white rounded-full px-4 py-3 font-semibold w-40"
                 onClick={handleCheckAnswer}
               >
                 Check
               </button>
               <button
-                className="border border-btn hover:bg-bg-primary text-white rounded-full px-4 py-3 font-semibold w-40"
+                className="border border-btn hover:bg-bg-primary active:bg-bg-primary text-white rounded-full px-4 py-3 font-semibold w-40"
                 onClick={handleSkip}
               >
                 Skip

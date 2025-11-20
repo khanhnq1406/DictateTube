@@ -7,13 +7,6 @@ import {
   next,
 } from "@/const";
 import { useVideoForm } from "@/context/video-form";
-import {
-  Tooltip,
-  TooltipArrow,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@radix-ui/react-tooltip";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useWatch } from "react-hook-form";
@@ -68,7 +61,7 @@ const VoiceRecord: React.FC = () => {
         language: "en-US",
       });
     } catch (error) {
-      console.error('Failed to start speech recognition:', error);
+      console.error("❌ Failed to start speech recognition:", error);
     }
   };
 
@@ -80,6 +73,12 @@ const VoiceRecord: React.FC = () => {
   const [highlightedWords, setHighlightedWords] = useState<
     Array<{ word: string; isCorrect: boolean }>
   >([]);
+  const [localPlayingState, setLocalPlayingState] = useState(isPlaying);
+
+  // Synchronize local playing state with form state
+  useEffect(() => {
+    setLocalPlayingState(isPlaying);
+  }, [isPlaying]);
 
   useEffect(() => {
     // When speech is detected, reset the silence timer
@@ -109,24 +108,6 @@ const VoiceRecord: React.FC = () => {
       }
     };
   }, [silenceTimer]);
-
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          handlePlay();
-        }, 300);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyPress);
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-      clearTimeout(timeoutId);
-    };
-  }, [isPlaying]);
 
   useEffect(() => {
     if (!listening) {
@@ -168,7 +149,9 @@ const VoiceRecord: React.FC = () => {
   };
 
   const handlePlay = () => {
-    setValue(fieldKey.isPlaying, !isPlaying);
+    const newState = !localPlayingState;
+    setLocalPlayingState(newState);
+    setValue(fieldKey.isPlaying, newState);
   };
 
   // Return early if transcript is not available yet
@@ -185,34 +168,21 @@ const VoiceRecord: React.FC = () => {
   return (
     <div className="bg-bg-secondary w-full h-full rounded-3xl shadow-shadow-primary-l py-8 flex flex-col gap-8 px-10 mobile:justify-center mobile:items-center mobile:p-[5vw] mobile:gap-[5vw] voice-record-container prevent-phone-output">
       <div className="flex flex-row gap-6">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                className={`border border-btn hover:bg-bg-primary p-2 rounded-md 
+        <button
+          className={`border border-btn hover:bg-bg-primary active:bg-bg-primary p-2 rounded-md 
                 }`}
-                onClick={handlePlay}
-              >
-                {isPlaying ? (
-                  <Image src={pause} alt="pause-icon" width={20} height={20} />
-                ) : (
-                  <Image src={play} alt="play-icon" width={20} height={20} />
-                )}
-              </button>
-            </TooltipTrigger>
-            <TooltipContent
-              side="right"
-              className="bg-white text-bg-primary p-2 z-50 rounded"
-            >
-              {`You can press "Ctrl" to replay!`}
-              <TooltipArrow fill="white" />
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+          onClick={handlePlay}
+        >
+          {isPlaying ? (
+            <Image src={pause} alt="pause-icon" width={20} height={20} />
+          ) : (
+            <Image src={play} alt="play-icon" width={20} height={20} />
+          )}
+        </button>
 
         <div className="flex flex-row gap-4 items-center">
           <button
-            className="bg-bg-primary p-2 rounded-md hover:bg-slate-900"
+            className="bg-bg-primary p-2 rounded-md hover:bg-slate-900 active:bg-slate-900"
             onClick={() => handleNavigation("prev")}
             disabled={currentIndex === 0}
           >
@@ -226,7 +196,7 @@ const VoiceRecord: React.FC = () => {
           </button>
           <p>{`${currentIndex + 1} / ${transcript?.length || 0}`}</p>
           <button
-            className="bg-bg-primary p-2 rounded-md hover:bg-slate-900"
+            className="bg-bg-primary p-2 rounded-md hover:bg-slate-900 active:bg-slate-900"
             onClick={() => handleNavigation("next")}
             disabled={currentIndex === (transcript?.length || 0) - 1}
           >
@@ -278,7 +248,7 @@ const VoiceRecord: React.FC = () => {
                   />
                   <div className="flex flex-col items-center justify-center gap-2">
                     <div
-                      className="flex justify-center items-center bg-btn p-4 rounded-full hover:bg-btn-hover"
+                      className="flex justify-center items-center bg-btn p-4 rounded-full hover:bg-btn-hover active:bg-btn-hover"
                       onClick={() => handleNavigation("next")}
                     >
                       <Image src={next} alt="next" width={20} height={20} />

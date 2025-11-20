@@ -147,7 +147,7 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
         </button>
         <button
           type="submit"
-          className="bg-btn hover:bg-btn-hover text-white rounded-full px-4 py-2 font-semibold flex flex-row items-center gap-2"
+          className="bg-btn hover:bg-btn-hover active:bg-btn-hover text-white rounded-full px-4 py-2 font-semibold flex flex-row items-center gap-2"
           style={
             isLoading
               ? {
@@ -161,7 +161,8 @@ const VideoForm: React.FC<VideoFormProps> = (props) => {
           {isLoading && (
             <Image src={loading} alt="loading-icon" width={15} height={15} />
           )}
-          {formState === VideoFormState.dictation || formState === VideoFormState.landing
+          {formState === VideoFormState.dictation ||
+          formState === VideoFormState.landing
             ? "Start Dictation"
             : "Start Shadowing"}
         </button>
