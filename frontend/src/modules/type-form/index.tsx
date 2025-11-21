@@ -17,7 +17,7 @@ import {
   TooltipTrigger,
 } from "@radix-ui/react-tooltip";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useWatch } from "react-hook-form";
 import { VideoDataForm, Transcript } from "@/interface";
 import { cleanWord } from "@/utils/transcript";
@@ -42,24 +42,6 @@ const TypeForm: React.FC = () => {
   // Synchronize local playing state with form state
   useEffect(() => {
     setLocalPlayingState(isPlaying);
-  }, [isPlaying]);
-
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          handlePlay();
-        }, 300);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyPress);
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-      clearTimeout(timeoutId);
-    };
   }, [isPlaying]);
 
   const resetState = () => {
@@ -90,11 +72,29 @@ const TypeForm: React.FC = () => {
     }
   };
 
-  const handlePlay = () => {
+  const handlePlay = useCallback(() => {
     const newState = !localPlayingState;
     setLocalPlayingState(newState);
     setValue(fieldKey.isPlaying, newState);
-  };
+  }, [localPlayingState, setValue]);
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          handlePlay();
+        }, 300);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+      clearTimeout(timeoutId);
+    };
+  }, [handlePlay]);
 
   const handleCheckAnswer = () => {
     setAnswer(getDisplayText());
