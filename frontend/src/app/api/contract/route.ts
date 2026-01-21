@@ -13,23 +13,23 @@ export async function GET(request: Request) {
     console.log("🔍 Debug: ACCOUNT_ID:", process.env.ACCOUNT_ID);
     console.log("🔍 Debug: NODE_URL:", process.env.NODE_URL);
 
-    const connect = Connect();
+    const connect = await Connect();
     console.log("🔍 Debug: Connection established");
 
     let result;
 
     if (id) {
       console.log("🔍 Debug: Calling get_score_by_id with id:", id);
-      // Call contract method with ID
-      result = await connect.callFunction({
+      // Call contract method with ID - use viewFunction for read-only calls
+      result = await connect.viewFunction({
         contractId: CONTRACT_ID,
         methodName: "get_score_by_id",
         args: { id },
       });
     } else {
       console.log("🔍 Debug: Calling get_score without id");
-      // Call contract method without ID
-      result = await connect.callFunction({
+      // Call contract method without ID - use viewFunction for read-only calls
+      result = await connect.viewFunction({
         contractId: CONTRACT_ID,
         methodName: "get_score",
         args: {},
@@ -59,11 +59,14 @@ export async function POST(request: Request) {
   const { id, username, totalPoint } = await request.json();
 
   try {
-    const connect = Connect();
-    await connect.callFunction({
+    const connect = await Connect();
+    // Use functionCall for write operations (change state)
+    await connect.functionCall({
       contractId: CONTRACT_ID,
       methodName: "set_score",
       args: { id, username, totalPoint },
+      gas: BigInt("300000000000000"),
+      attachedDeposit: BigInt("0"),
     });
     return NextResponse.json({ status: 200 });
   } catch (error) {

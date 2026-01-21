@@ -9,10 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@near-js/accounts": "^1.2.1",
+    "@near-js/providers": "^2.5.1",
+    "@near-js/signers": "^2.5.1",
+    "@near-js/transactions": "^0.2.1",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@types/uuid": "^10.0.0",
-    "near-api-js": "^6.1.0",
-    "next": "15.1.8",
+    "near-api-js": "^6.5.1",
+    "next": "^15.5.9",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.56.4",
@@ -27,7 +31,7 @@
     "@types/react-dom": "^19",
     "@types/react-speech-recognition": "^3.9.6",
     "eslint": "^9",
-    "eslint-config-next": "15.1.8",
+    "eslint-config-next": "^15.5.9",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
