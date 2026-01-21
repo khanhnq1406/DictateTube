@@ -226,7 +226,11 @@ const TypeForm: React.FC = () => {
           }}
           onKeyUp={(e) => {
             if (e.key === "Enter") {
-              handleCheckAnswer();
+              if (isCorrect === true) {
+                handleNext();
+              } else {
+                handleCheckAnswer();
+              }
               return;
             }
           }}
